@@ -3,7 +3,7 @@ from time import sleep
 
 root = Tk() # Start
 root.resizable(False,False) # window cannot be resized
-root.title("4Func Calc") # title of the window
+root.title("4Func Calc") # title of the windows
 
 # easy values
 base_padx = 20
@@ -82,41 +82,61 @@ button_add.grid(row=3, column=3, sticky=base_sticky)
 # create the class
 class calculationInfo():
     def __init__(self): # initialize a new object
-        self.tb_display_string = "" # the program starts with nothing being displayed here
-        self.bb_display_string = "0" # the program starts with 0 in the bb
-        self.bb_number = None
-        self.tb_left_number = None
-        self.tb_right_number = None
-        self.current_operation = None
+        self.tb_format = "" # can either be: "", "single", or "double"
+                            # "" means the tb is displaying nothing
+                            # "single" means the tb is displaying one number and the operation: 9 +, 8 =, etc.
+                            # "double" means the tb is displaying two numbers, an operation, and equals: 1 + 1 =
+        self.tb_l_num = None # number to the left in the top box, only number if only one is shown
+        self.tb_r_num = None # number to the right of the top box, if there are two numbers shown
+        self.current_operation = None # what operation is being performed in the tb
+        self.bb_value = 0 # what the bb is equal to, or None if waiting for input even if there is a string there
     def reset_variables(self):
-        self.tb_display_string = "" 
-        self.bb_display_string = "0" 
-        self.bb_number = 0
-        self.tb_left_number = None
-        self.tb_right_number = None
-        self.current_operation = ""
-    def update_displaying_strings(self): # set the display strings in the function to what is currently being displayed
-        self.tb_display_string = top_box["text"]
-        self.bb_display_string = bottom_box["text"]
+        self.tb_format = "" 
+        self.tb_l_num = None 
+        self.tb_r_num = None 
+        self.current_operation = None 
+        self.bb_value = 0 
+
 
 # create the object
 info = calculationInfo()
 
-## functinos
+## helper functions
 
-# helper functions
+# update the text being shown in the top box
 def update_tb_text(string):
     top_box.config(text=string)
+
+# update the text being shown in the bottom box
 def update_bb_text(string):
     bottom_box.config(text=string)
 
-def format_tb(num, operation):
-    string = str(num) + " " + operation
-    update_tb_text(string)
-    info.tb_display_string = string
-    info.current_operation = operation
-    info.tb_left_number = num
+# updates the format of the tb text
+def format_tb_text(format, operation):
+    if (format == "single"):
+        new_string = str(info.tb_l_num) + " " + operation
+        update_tb_text(new_string)
+        info.tb_format = "single"
+        info.current_operation = operation
+    elif (format == "double"):
+        new_string = str(info.tb_l_num) + " " + operation + " " + str(info.tb_r_num) + " ="
+        update_tb_text(new_string)
+        info.tb_format = "double"
+        info.current_operation = operation
+    else:
+        print("format_tb_text ERROR")
 
+# returns num as int if can be int, elsewise as a float
+def format_num(num):
+    num = float(num)
+    if num.is_integer():
+        return int(num)
+    else:
+        return num
+
+
+
+# calculates
 def calculate(operation, first_term, second_term):
     if (operation == "+"):
         the_sum = first_term + second_term
@@ -136,6 +156,7 @@ def calculate(operation, first_term, second_term):
     else:
         print("Error")
 
+# changes buttons other than clear on/off
 def set_button_state(current_state):
     button_0.config(state=current_state)
     button_1.config(state=current_state)
@@ -153,53 +174,69 @@ def set_button_state(current_state):
     button_divide.config(state=current_state)
     button_equals.config(state=current_state)
 
-
-
-# button click functions
-
-def clicked_num(num): # what to do when a number is pressed
-
-    # None: for when bb is displaying a numberstring but allows user to input a new value to replace the old one sitting there
-    # 0: For when the bb is displaying and equals to 0, so we don't have numbers onscreen starting with zero: 067, 000, 098.0
-    if (info.bb_number == None or info.bb_number == 0): 
-        info.bb_number = num # sets the bb_number to the input
-        update_bb_text(str(num)) # updates the bb text to display that singular digit
+def clicked_num(num):
+    if (info.tb_format == "double"):
+        clicked_clear()
+        info.bb_value = num
+        update_bb_text(str(num))
+    elif (info.bb_value == None or info.bb_value == 0): 
+        info.bb_value = num
+        update_bb_text(str(num))
     else:
-        # update the bb text
-        # example: if 987 what previously in box and the user typed 1, the box would now display 9871
-        to_display = (bottom_box["text"]) + (str(num)) # concantation of what is curerntly onscreen and number just pressed
-        update_bb_text(to_display) # updates the text so that the num the user just pressed appears after
-        info.bb_number = float(to_display) # updates the bb_number variable
+        new_value = bottom_box["text"] + str(num)
+        new_value = float(new_value)
+        new_value = format_num(new_value)
+        update_bb_text(str(new_value))
+        info.bb_value = new_value
 
-# what happens when a user clicks an operation  (+, -, ×, ÷)
+
+
 def clicked_operation(operation):
-    # if there is nothing right now in the tb
-    # change the tb box to show the bb-number and the plus sign
-    if (info.tb_display_string == ""):
-        format_tb(info.bb_number, operation)
-        info.tb_left_number = info.bb_number
-        info.bb_number = None
-    elif ("=" in info.tb_display_string):
-        format_tb(info.tb_left_number, operation)
-        info.tb_left_number = info.bb_number
-        info.bb_number = None
-    else:
-        # this steps allows the user to change their operation
-        # ensures user cannot press a number once and then get a calculation
-        if (info.bb_number == None):
-            format_tb(info.tb_left_number, operation)
-        else:
-            # allows user to calculate the expressions without hitting =
-            # as long as they have input two numbers
-            first_term = info.tb_left_number
-            second_term = info.bb_number
-            solution = calculate(operation, first_term, second_term)
-            if (solution == "UNDEFINED"):
-                undefined()
-            else:
-                format_tb(solution, operation)
-                update_bb_text(str(solution))
-                info.bb_number = None
+    if (info.tb_format == ""):
+        info.tb_l_num = info.bb_value
+        info.bb_value = None
+        format = "single"
+        format_tb_text(format, operation)
+    elif (info.tb_format == "single" and info.bb_value == None):
+        format = "single"
+        format_tb_text(format, operation)
+    elif (info.tb_format == "single" and info.bb_value != None):
+        solution = calculate(info.current_operation, info.tb_l_num, info.bb_value)
+        info.tb_l_num = solution
+        format = "single"
+        format_tb_text(format, operation)
+
+        info.bb_value = None
+        update_bb_text(str(solution))
+    elif (info.tb_format == "double"):
+        info.tb_l_num = info.bb_value
+        info.bb_value = None
+        format_tb_text("single", operation)
+
+def clicked_equals():
+    if (info.tb_format == ""):
+        info.tb_l_num = info.bb_value
+        info.bb_value = None
+        format = "single"
+        format_tb_text(format, "=")
+    elif (info.tb_format == "single" and info.current_operation == "="):
+        pass
+    elif (info.tb_format == "single"):
+        info.tb_r_num = float(bottom_box["text"])
+        info.tb_r_num = format_num(info.tb_r_num)
+        format_tb_text("double", info.current_operation)
+        solution = calculate(info.current_operation, info.tb_l_num, info.tb_r_num)
+        solution = format_num(solution)
+        update_bb_text(str(solution))
+        info.bb_value = solution
+    elif (info.tb_format == "double"):
+        info.tb_l_num = info.bb_value
+        format_tb_text("double", info.current_operation)
+        solution = calculate(info.current_operation, info.tb_l_num, info.tb_r_num)
+        solution = format_num(solution)
+        update_bb_text(str(solution))
+        info.bb_value = solution
+       
 
 # clears calculator to start state
 def clicked_clear():
