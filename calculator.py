@@ -1,4 +1,5 @@
 from tkinter import *
+from time import sleep
 
 root = Tk() # Start
 root.resizable(False,False) # window cannot be resized
@@ -52,7 +53,7 @@ button_add = Button(frame_keypad, text="+", padx=base_padx, pady=base_pady,bg=ba
 button_subtract = Button(frame_keypad, text="-", padx=base_padx, pady=base_pady, bg=base_function_bg, relief = base_function_relief, font=base_number_font, command=lambda: clicked_operation("-"))
 button_multiply = Button(frame_keypad, text="×", padx=base_padx, pady=base_pady, bg=base_function_bg, relief = base_function_relief, font=base_number_font, command=lambda: clicked_operation("×"))
 button_divide = Button(frame_keypad, text="÷", padx=base_padx, pady=base_pady, bg=base_function_bg, relief = base_function_relief, font=base_number_font, command=lambda: clicked_operation("÷"))
-button_equals = Button(frame_keypad, text="=", padx=base_padx, pady=base_pady, bg=base_function_bg, fg="white", relief = "ridge", font=base_number_font, command=lambda: clicked_operation(0))
+button_equals = Button(frame_keypad, text="=", padx=base_padx, pady=base_pady, bg=base_function_bg, fg="white", relief = "ridge", font=base_number_font, command=lambda: clicked_equals())
 button_clear = Button(frame_keypad, text="C", padx=base_padx, pady=base_pady, bg=base_function_bg, fg="white", relief = "ridge", font=base_number_font, command=lambda: clicked_clear())
 
 # grid the buttons (written in top-down order as appears in program)
@@ -127,10 +128,31 @@ def calculate(operation, first_term, second_term):
         the_product = first_term * second_term
         return the_product
     elif (operation == "÷"):
-        the_quotient = first_term / second_term
-        return the_quotient
+        if(second_term == 0):
+            return "UNDEFINED"
+        else:
+            the_quotient = first_term / second_term
+            return the_quotient
     else:
         print("Error")
+
+def set_button_state(current_state):
+    button_0.config(state=current_state)
+    button_1.config(state=current_state)
+    button_2.config(state=current_state)
+    button_3.config(state=current_state)
+    button_4.config(state=current_state)
+    button_5.config(state=current_state)
+    button_6.config(state=current_state)
+    button_7.config(state=current_state)
+    button_8.config(state=current_state)
+    button_9.config(state=current_state)
+    button_add.config(state=current_state)
+    button_subtract.config(state=current_state)
+    button_multiply.config(state=current_state)
+    button_divide.config(state=current_state)
+    button_equals.config(state=current_state)
+
 
 
 # button click functions
@@ -149,38 +171,51 @@ def clicked_num(num): # what to do when a number is pressed
         update_bb_text(to_display) # updates the text so that the num the user just pressed appears after
         info.bb_number = float(to_display) # updates the bb_number variable
 
+# what happens when a user clicks an operation  (+, -, ×, ÷)
 def clicked_operation(operation):
     # if there is nothing right now in the tb
     # change the tb box to show the bb-number and the plus sign
-    # set the bb number to None
     if (info.tb_display_string == ""):
         format_tb(info.bb_number, operation)
         info.tb_left_number = info.bb_number
         info.bb_number = None
-
-    # (else)if the display box is showing a number and an operation sign
+    elif ("=" in info.tb_display_string):
+        format_tb(info.tb_left_number, operation)
+        info.tb_left_number = info.bb_number
+        info.bb_number = None
     else:
-        # if the entrybox number is == None
-        # change the operation being performed to addition
+        # this steps allows the user to change their operation
+        # ensures user cannot press a number once and then get a calculation
         if (info.bb_number == None):
             format_tb(info.tb_left_number, operation)
-        # if the entrybox number is != None
-        # calculate the operation
-        # update display box to show the result and plus sign
-        # update the entry box to show the result
-        # set the entrybox number to None
         else:
+            # allows user to calculate the expressions without hitting =
+            # as long as they have input two numbers
             first_term = info.tb_left_number
             second_term = info.bb_number
             solution = calculate(operation, first_term, second_term)
-            format_tb(solution, operation)
-            update_bb_text(str(solution))
-            info.bb_number = None
+            if (solution == "UNDEFINED"):
+                undefined()
+            else:
+                format_tb(solution, operation)
+                update_bb_text(str(solution))
+                info.bb_number = None
 
+# clears calculator to start state
 def clicked_clear():
     update_tb_text("")
     update_bb_text("0")
     info.reset_variables()
+
+    # reset from an undefined answer
+    set_button_state("normal")
+
+def undefined():
+    update_tb_text("")
+    update_bb_text("UNDEFINED")
+    
+    # grey out all the buttons except clear
+    set_button_state("disabled")
     
 
 root.mainloop() # End
