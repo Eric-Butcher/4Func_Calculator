@@ -128,7 +128,10 @@ def format_tb_text(format, operation):
 
 # returns num as int if can be int, elsewise as a float
 def format_num(num):
-    num = float(num)
+    if(num == "UNDEFINED"):
+        undefined()
+    else:
+        num = float(num)
     if num.is_integer():
         return int(num)
     else:
