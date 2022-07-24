@@ -1,7 +1,7 @@
-from tkinter import *
+import tkinter as tk
 from time import sleep
 
-root = Tk() # Start
+root = tk.Tk() # Start
 root.resizable(False,False) # window cannot be resized
 root.title("4Func Calc") # title of the windows
 
@@ -17,44 +17,44 @@ base_number_font = ("Segoe UI", 9, "normal")
 ## create the two main frames for this application
 
 # frame for theboxes showing numbers 
-frame_boxes = Frame(root)
+frame_boxes = tk.Frame(root)
 frame_boxes.grid(sticky="ew")
 
 # frames for the clickable keys
-frame_keypad = Frame(root)
+frame_keypad = tk.Frame(root)
 frame_keypad.grid(sticky="nsew")
 
 ## create the display boxes
 
 # create the display box for showing information above the entry 
-top_box = Label(frame_boxes, fg="blue", bg="grey", relief="ridge", font=base_number_font, anchor="e", text="")
+top_box = tk.Label(frame_boxes, fg="blue", bg="grey", relief="ridge", font=base_number_font, anchor="e", text="")
 top_box.pack(side="top", fill="x")
 
 # create and place the entry box
-bottom_box = Label(frame_boxes, fg="blue", bg="grey", relief="ridge", font = ("Segoe UI", 14, "normal"), anchor="e", text="0") # entry box
+bottom_box = tk.Label(frame_boxes, fg="blue", bg="grey", relief="ridge", font = ("Segoe UI", 14, "normal"), anchor="e", text="0") # entry box
 bottom_box.pack(side="bottom", fill="x") # placement of the column
 
 ## create the clickable buttons
 
 # create number buttons
-button_0 = Button(frame_keypad, text="0", padx=base_padx, pady=base_pady, relief = base_number_relief, font=base_number_font, command=lambda: clicked_num(0))
-button_1 = Button(frame_keypad, text="1", padx=base_padx, pady=base_pady, relief = base_number_relief, font=base_number_font, command=lambda: clicked_num(1))
-button_2 = Button(frame_keypad, text="2", padx=base_padx, pady=base_pady, relief = base_number_relief, font=base_number_font, command=lambda: clicked_num(2))
-button_3 = Button(frame_keypad, text="3", padx=base_padx, pady=base_pady, relief = base_number_relief, font=base_number_font, command=lambda: clicked_num(3))
-button_4 = Button(frame_keypad, text="4", padx=base_padx, pady=base_pady, relief = base_number_relief, font=base_number_font, command=lambda: clicked_num(4))
-button_5 = Button(frame_keypad, text="5", padx=base_padx, pady=base_pady, relief = base_number_relief, font=base_number_font, command=lambda: clicked_num(5))
-button_6 = Button(frame_keypad, text="6", padx=base_padx, pady=base_pady, relief = base_number_relief, font=base_number_font, command=lambda: clicked_num(6))
-button_7 = Button(frame_keypad, text="7", padx=base_padx, pady=base_pady, relief = base_number_relief, font=base_number_font, command=lambda: clicked_num(7))
-button_8 = Button(frame_keypad, text="8", padx=base_padx, pady=base_pady, relief = base_number_relief, font=base_number_font, command=lambda: clicked_num(8))
-button_9 = Button(frame_keypad, text="9", padx=base_padx, pady=base_pady, relief = base_number_relief, font=base_number_font, command=lambda: clicked_num(9))
+button_0 = tk.Button(frame_keypad, text="0", padx=base_padx, pady=base_pady, relief = base_number_relief, font=base_number_font, command=lambda: clicked_num(0))
+button_1 = tk.Button(frame_keypad, text="1", padx=base_padx, pady=base_pady, relief = base_number_relief, font=base_number_font, command=lambda: clicked_num(1))
+button_2 = tk.Button(frame_keypad, text="2", padx=base_padx, pady=base_pady, relief = base_number_relief, font=base_number_font, command=lambda: clicked_num(2))
+button_3 = tk.Button(frame_keypad, text="3", padx=base_padx, pady=base_pady, relief = base_number_relief, font=base_number_font, command=lambda: clicked_num(3))
+button_4 = tk.Button(frame_keypad, text="4", padx=base_padx, pady=base_pady, relief = base_number_relief, font=base_number_font, command=lambda: clicked_num(4))
+button_5 = tk.Button(frame_keypad, text="5", padx=base_padx, pady=base_pady, relief = base_number_relief, font=base_number_font, command=lambda: clicked_num(5))
+button_6 = tk.Button(frame_keypad, text="6", padx=base_padx, pady=base_pady, relief = base_number_relief, font=base_number_font, command=lambda: clicked_num(6))
+button_7 = tk.Button(frame_keypad, text="7", padx=base_padx, pady=base_pady, relief = base_number_relief, font=base_number_font, command=lambda: clicked_num(7))
+button_8 = tk.Button(frame_keypad, text="8", padx=base_padx, pady=base_pady, relief = base_number_relief, font=base_number_font, command=lambda: clicked_num(8))
+button_9 = tk.Button(frame_keypad, text="9", padx=base_padx, pady=base_pady, relief = base_number_relief, font=base_number_font, command=lambda: clicked_num(9))
 
 # create operation buttons
-button_add = Button(frame_keypad, text="+", padx=base_padx, pady=base_pady,bg=base_function_bg, relief = base_function_relief, font=base_number_font, command=lambda: clicked_operation("+"))
-button_subtract = Button(frame_keypad, text="-", padx=base_padx, pady=base_pady, bg=base_function_bg, relief = base_function_relief, font=base_number_font, command=lambda: clicked_operation("-"))
-button_multiply = Button(frame_keypad, text="×", padx=base_padx, pady=base_pady, bg=base_function_bg, relief = base_function_relief, font=base_number_font, command=lambda: clicked_operation("×"))
-button_divide = Button(frame_keypad, text="÷", padx=base_padx, pady=base_pady, bg=base_function_bg, relief = base_function_relief, font=base_number_font, command=lambda: clicked_operation("÷"))
-button_equals = Button(frame_keypad, text="=", padx=base_padx, pady=base_pady, bg=base_function_bg, fg="white", relief = "ridge", font=base_number_font, command=lambda: clicked_equals())
-button_clear = Button(frame_keypad, text="C", padx=base_padx, pady=base_pady, bg=base_function_bg, fg="white", relief = "ridge", font=base_number_font, command=lambda: clicked_clear())
+button_add = tk.Button(frame_keypad, text="+", padx=base_padx, pady=base_pady,bg=base_function_bg, relief = base_function_relief, font=base_number_font, command=lambda: clicked_operation("+"))
+button_subtract = tk.Button(frame_keypad, text="-", padx=base_padx, pady=base_pady, bg=base_function_bg, relief = base_function_relief, font=base_number_font, command=lambda: clicked_operation("-"))
+button_multiply = tk.Button(frame_keypad, text="×", padx=base_padx, pady=base_pady, bg=base_function_bg, relief = base_function_relief, font=base_number_font, command=lambda: clicked_operation("×"))
+button_divide = tk.Button(frame_keypad, text="÷", padx=base_padx, pady=base_pady, bg=base_function_bg, relief = base_function_relief, font=base_number_font, command=lambda: clicked_operation("÷"))
+button_equals = tk.Button(frame_keypad, text="=", padx=base_padx, pady=base_pady, bg=base_function_bg, fg="white", relief = "ridge", font=base_number_font, command=lambda: clicked_equals())
+button_clear = tk.Button(frame_keypad, text="C", padx=base_padx, pady=base_pady, bg=base_function_bg, fg="white", relief = "ridge", font=base_number_font, command=lambda: clicked_clear())
 
 # grid the buttons (written in top-down order as appears in program)
 button_7.grid(row=0, column=0, sticky=base_sticky)
