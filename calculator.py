@@ -128,14 +128,21 @@ def format_tb_text(format, operation):
 
 # returns num as int if can be int, elsewise as a float
 def format_num(num):
-    if(num == "UNDEFINED"):
-        undefined()
+    if(num == "UNDEFINED" or num == "OVERFLOW"):
+        pass
     else:
         num = float(num)
-    if num.is_integer():
-        return int(num)
+        if num.is_integer():
+            return int(num)
+        else:
+            return num
+
+def check_too_long(num):
+    numstring = str(num)
+    if (len(numstring) >= 22):
+        return True
     else:
-        return num
+        return False
 
 
 
@@ -143,19 +150,31 @@ def format_num(num):
 def calculate(operation, first_term, second_term):
     if (operation == "+"):
         the_sum = first_term + second_term
-        return the_sum
+        if check_too_long(the_sum):
+            return ("OVERFLOW")
+        else:
+            return the_sum
     elif (operation == "-"):
         the_sum = first_term - second_term
-        return the_sum
+        if check_too_long(the_sum):
+             return ("OVERFLOW")
+        else:
+            return the_sum
     elif (operation == "×"):
         the_product = first_term * second_term
-        return the_product
+        if check_too_long(the_product):
+             return("OVERFLOW")
+        else:
+            return the_product
     elif (operation == "÷"):
         if(second_term == 0):
-            return "UNDEFINED"
+            return ("UNDEFINED")
         else:
             the_quotient = first_term / second_term
-            return the_quotient
+            if check_too_long(the_quotient):
+                 return ("OVERFLOW")
+            else:
+                return the_quotient
     else:
         print("Error")
 
@@ -185,6 +204,8 @@ def clicked_num(num):
     elif (info.bb_value == None or info.bb_value == 0): 
         info.bb_value = num
         update_bb_text(str(num))
+    elif (  (len(bottom_box["text"])) >= 11):
+        pass
     else:
         new_value = bottom_box["text"] + str(num)
         new_value = float(new_value)
@@ -205,12 +226,15 @@ def clicked_operation(operation):
         format_tb_text(format, operation)
     elif (info.tb_format == "single" and info.bb_value != None):
         solution = calculate(info.current_operation, info.tb_l_num, info.bb_value)
-        info.tb_l_num = solution
-        format = "single"
-        format_tb_text(format, operation)
+        if is_not_solution(solution):
+            cannot_calculate(solution)
+        else:
+            info.tb_l_num = solution
+            format = "single"
+            format_tb_text(format, operation)
 
-        info.bb_value = None
-        update_bb_text(str(solution))
+            info.bb_value = None
+            update_bb_text(str(solution))
     elif (info.tb_format == "double"):
         info.tb_l_num = info.bb_value
         info.bb_value = None
@@ -229,16 +253,22 @@ def clicked_equals():
         info.tb_r_num = format_num(info.tb_r_num)
         format_tb_text("double", info.current_operation)
         solution = calculate(info.current_operation, info.tb_l_num, info.tb_r_num)
-        solution = format_num(solution)
-        update_bb_text(str(solution))
-        info.bb_value = solution
+        if is_not_solution(solution):
+            cannot_calculate(solution)
+        else:
+            solution = format_num(solution)
+            update_bb_text(str(solution))
+            info.bb_value = solution
     elif (info.tb_format == "double"):
         info.tb_l_num = info.bb_value
         format_tb_text("double", info.current_operation)
         solution = calculate(info.current_operation, info.tb_l_num, info.tb_r_num)
-        solution = format_num(solution)
-        update_bb_text(str(solution))
-        info.bb_value = solution
+        if is_not_solution(solution):
+            cannot_calculate(solution)
+        else:
+            solution = format_num(solution)
+            update_bb_text(str(solution))
+            info.bb_value = solution
        
 
 # clears calculator to start state
@@ -250,9 +280,16 @@ def clicked_clear():
     # reset from an undefined answer
     set_button_state("normal")
 
-def undefined():
+def is_not_solution(solution):
+    not_correct = ["UNDEFINED", "OVERFLOW"]
+    if solution in not_correct:
+        return True
+    else:
+        return False
+
+def cannot_calculate(message):
     update_tb_text("")
-    update_bb_text("UNDEFINED")
+    update_bb_text(str(message))
     
     # grey out all the buttons except clear
     set_button_state("disabled")
