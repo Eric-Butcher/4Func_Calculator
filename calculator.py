@@ -237,10 +237,10 @@ class CalculationInfo:
         # "" means the tb is displaying nothing
         # "single" means the tb is displaying one number and the operation: 9 +, 8 =, etc.
         # "double" means the tb is displaying two numbers, an operation, and equals: 1 + 1 =
-        self.tb_l_num = (
+        self.tb_left_num = (
             None  # number to the left in the top box, only number if only one is shown
         )
-        self.tb_r_num = (
+        self.tb_right_num = (
             None  # number to the right of the top box, if there are two numbers shown
         )
         self.current_operation = None  # what operation is being performed in the tb
@@ -248,8 +248,8 @@ class CalculationInfo:
 
     def reset_variables(self):
         self.tb_format = ""
-        self.tb_l_num = None
-        self.tb_r_num = None
+        self.tb_left_num = None
+        self.tb_right_num = None
         self.current_operation = None
         self.bb_value = 0
 
@@ -272,13 +272,13 @@ def update_bb_text(string):
 # updates the format of the tb text
 def format_tb_text(format, operation):
     if format == "single":
-        new_string = str(info.tb_l_num) + " " + operation
+        new_string = str(info.tb_left_num) + " " + operation
         update_tb_text(new_string)
         info.tb_format = "single"
         info.current_operation = operation
     elif format == "double":
         new_string = (
-            str(info.tb_l_num) + " " + operation + " " + str(info.tb_r_num) + " ="
+            str(info.tb_left_num) + " " + operation + " " + str(info.tb_right_num) + " ="
         )
         update_tb_text(new_string)
         info.tb_format = "double"
@@ -406,10 +406,18 @@ def clicked_operation(operation):
     # left number in the top box with the operation chosen
     # example: user pressed 5 +, top box now shows 5 +
     if info.tb_format == "":
-        info.tb_l_num = info.bb_value
+        info.tb_left_num = info.bb_value
         info.bb_value = None
         format = "single"
         format_tb_text(format, operation)
+
+    # take the number in the bottom box and put in a single formatted top box
+    # with the current operation when the box is showing 0 =, and user has
+    # put a number into bottom box
+    elif info.tb_format == "single" and info.current_operation == "=":
+        info.tb_left_num = format_num(bottom_box["text"])
+        format_tb_text("single", operation)
+
 
     # if the top box is currently showing something like 5 +
     # and the user pressed an operation without hitting a number key to input a number,
@@ -425,11 +433,11 @@ def clicked_operation(operation):
     # example: 5 + in top box, user pressed 3 so bottom box displays 3. After hitting the
     # plus sign again the top box will display 8 + and 8 in the bottom box
     elif info.tb_format == "single" and info.bb_value != None:
-        solution = calculate(info.current_operation, info.tb_l_num, info.bb_value)
+        solution = calculate(info.current_operation, info.tb_left_num, info.bb_value)
         if is_not_solution(solution):
             cannot_calculate(solution)
         else:
-            info.tb_l_num = solution
+            info.tb_left_num = solution
             format = "single"
             format_tb_text(format, operation)
 
@@ -440,7 +448,7 @@ def clicked_operation(operation):
     # and the user presses an operation (let's say +), format the top
     # box as 8 +
     elif info.tb_format == "double":
-        info.tb_l_num = info.bb_value
+        info.tb_left_num = info.bb_value
         info.bb_value = None
         format_tb_text("single", operation)
 
@@ -452,7 +460,7 @@ def clicked_equals():
     # and put it as the top left number in the top box
     # with the equal sign
     if info.tb_format == "":
-        info.tb_l_num = info.bb_value
+        info.tb_left_num = info.bb_value
         info.bb_value = None
         format = "single"
         format_tb_text(format, "=")
@@ -467,10 +475,10 @@ def clicked_equals():
     # bottom box and change the top box to show the previous
     # number in the bottom box and change the bottom box number to the result
     elif info.tb_format == "single":
-        info.tb_r_num = float(bottom_box["text"])
-        info.tb_r_num = format_num(info.tb_r_num)
+        info.tb_right_num = float(bottom_box["text"])
+        info.tb_right_num = format_num(info.tb_right_num)
         format_tb_text("double", info.current_operation)
-        solution = calculate(info.current_operation, info.tb_l_num, info.tb_r_num)
+        solution = calculate(info.current_operation, info.tb_left_num, info.tb_right_num)
         if is_not_solution(solution):
             cannot_calculate(solution)
         else:
@@ -482,9 +490,9 @@ def clicked_equals():
     # peform the operation and make the result the top left number in the
     # top box
     elif info.tb_format == "double":
-        info.tb_l_num = info.bb_value
+        info.tb_left_num = info.bb_value
         format_tb_text("double", info.current_operation)
-        solution = calculate(info.current_operation, info.tb_l_num, info.tb_r_num)
+        solution = calculate(info.current_operation, info.tb_left_num, info.tb_right_num)
         if is_not_solution(solution):
             cannot_calculate(solution)
         else:
